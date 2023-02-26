@@ -1,11 +1,6 @@
 #![allow(non_snake_case)]
 #![allow(unused_doc_comments)]
 
-#[macro_use]
-extern crate error_chain;
-#[macro_use]
-extern crate serde_derive;
-
 pub mod agent;
 pub mod catalog;
 pub mod connect_ca;
@@ -20,10 +15,10 @@ use std::env;
 
 use std::time::Duration;
 
-use reqwest::blocking::Client as HttpClient;
-use reqwest::blocking::ClientBuilder;
+use reqwest::Client as HttpClient;
+use reqwest::ClientBuilder;
 
-use errors::{Result, ResultExt};
+use errors::Result;
 
 #[derive(Clone, Debug)]
 pub struct Client {
@@ -47,16 +42,14 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Result<Config> {
-        ClientBuilder::new()
-            .build()
-            .chain_err(|| "Failed to build reqwest client")
-            .map(|client| Config {
-                address: String::from("http://localhost:8500"),
-                datacenter: None,
-                http_client: client,
-                token: None,
-                wait_time: None,
-            })
+        let conf = ClientBuilder::new().build().map(|client| Config {
+            address: String::from("http://localhost:8500"),
+            datacenter: None,
+            http_client: client,
+            token: None,
+            wait_time: None,
+        })?;
+        Ok(conf)
     }
 
     pub fn new_from_env() -> Result<Config> {
@@ -71,16 +64,14 @@ impl Config {
             Err(_e) => String::from("http://127.0.0.1:8500"),
         };
         let consul_token = env::var("CONSUL_HTTP_TOKEN").ok();
-        ClientBuilder::new()
-            .build()
-            .chain_err(|| "Failed to build reqwest client")
-            .map(|client| Config {
-                address: consul_addr,
-                datacenter: None,
-                http_client: client,
-                token: consul_token,
-                wait_time: None,
-            })
+        let conf = ClientBuilder::new().build().map(|client| Config {
+            address: consul_addr,
+            datacenter: None,
+            http_client: client,
+            token: consul_token,
+            wait_time: None,
+        })?;
+        Ok(conf)
     }
 
     pub fn new_from_consul_host(
@@ -88,16 +79,25 @@ impl Config {
         port: Option<u16>,
         token: Option<String>,
     ) -> Result<Config> {
-        ClientBuilder::new()
-            .build()
-            .chain_err(|| "Failed to build reqwest client")
-            .map(|client| Config {
-                address: format!("{}:{}", host, port.unwrap_or(8500)),
-                datacenter: None,
-                http_client: client,
-                token,
-                wait_time: None,
-            })
+        let conf = ClientBuilder::new().build().map(|client| Config {
+            address: format!("{}:{}", host, port.unwrap_or(8500)),
+            datacenter: None,
+            http_client: client,
+            token,
+            wait_time: None,
+        })?;
+        Ok(conf)
+    }
+
+    pub fn new_from_addr(addr: &str, token: Option<String>) -> Result<Config> {
+        let conf = ClientBuilder::new().build().map(|client| Config {
+            address: addr.to_string(),
+            datacenter: None,
+            http_client: client,
+            token,
+            wait_time: None,
+        })?;
+        Ok(conf)
     }
 }
 
