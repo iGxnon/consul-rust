@@ -65,7 +65,7 @@ impl Health for Client {
         let mut params = HashMap::new();
         let path = format!("/v1/health/service/{}", service);
         if passing_only {
-            params.insert(String::from("passing"), String::from("1"));
+            params.insert(String::from("passing"), String::from("true"));
         }
         if let Some(tag) = tag {
             params.insert(String::from("tag"), tag.to_owned());
