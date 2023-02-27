@@ -18,8 +18,8 @@ async fn test_service() {
         )
         .await
         .unwrap();
-    let (list, _) = client
-        .services(Some(r#"ID == "test""#), None)
+    let list = client
+        .agent_services(Some(r#"ID == "test""#))
         .await
         .unwrap();
     assert!(list.contains_key("test"));

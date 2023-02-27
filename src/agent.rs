@@ -191,11 +191,7 @@ pub trait Agent {
         check_id: &str,
         note: Option<&str>,
     ) -> Result<()>;
-    async fn services(
-        &self,
-        filter: Option<&str>,
-        q: Option<&QueryOptions>,
-    ) -> Result<(HashMap<String, AgentService>, QueryMeta)>;
+    async fn agent_services(&self, filter: Option<&str>) -> Result<HashMap<String, AgentService>>;
     async fn register_service(
         &self,
         reg: &RegisterAgentService,
@@ -354,16 +350,14 @@ impl Agent for Client {
     }
 
     /// https://developer.hashicorp.com/consul/api-docs/agent/service#list-services
-    async fn services(
-        &self,
-        filter: Option<&str>,
-        q: Option<&QueryOptions>,
-    ) -> Result<(HashMap<String, AgentService>, QueryMeta)> {
+    async fn agent_services(&self, filter: Option<&str>) -> Result<HashMap<String, AgentService>> {
         let mut params = HashMap::new();
         if let Some(filter) = filter {
             params.insert("filter".to_string(), filter.to_string());
         }
-        get("/v1/agent/services", &self.config, params, q).await
+        get("/v1/agent/services", &self.config, params, None)
+            .await
+            .map(|x| x.0)
     }
 
     /// https://developer.hashicorp.com/consul/api-docs/agent/service#register-service
