@@ -34,7 +34,7 @@ pub struct Node {
     pub ModifyIndex: u64,
 }
 
-#[derive(Eq, Default, PartialEq, Serialize, Deserialize, Debug)]
+#[derive(Default, Serialize, Deserialize, Debug)]
 #[serde(default)]
 pub struct ServiceEntry {
     pub Node: Node,

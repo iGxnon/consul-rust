@@ -7,14 +7,14 @@ use crate::request::{get, put};
 use crate::{Client, QueryMeta, QueryOptions, WriteMeta, WriteOptions};
 use serde::{Deserialize, Serialize};
 
-#[derive(Eq, Default, PartialEq, Serialize, Deserialize, Debug)]
+#[derive(Default, Serialize, Deserialize, Debug)]
 #[serde(default)]
 pub struct Weights {
     Passing: u32,
     Warning: u32,
 }
 
-#[derive(Eq, Default, PartialEq, Serialize, Deserialize, Debug)]
+#[derive(Default, Serialize, Deserialize, Debug)]
 #[serde(default)]
 pub struct Node {
     ID: String,
@@ -27,7 +27,7 @@ pub struct Node {
     ModifyIndex: u64,
 }
 
-#[derive(Eq, Default, PartialEq, Serialize, Deserialize, Debug)]
+#[derive(Default, Serialize, Deserialize, Debug)]
 #[serde(default)]
 pub struct CatalogService {
     ID: String,
@@ -48,14 +48,14 @@ pub struct CatalogService {
     ModifyIndex: u64,
 }
 
-#[derive(Eq, Default, PartialEq, Serialize, Deserialize, Debug)]
+#[derive(Default, Serialize, Deserialize, Debug)]
 #[serde(default)]
 pub struct CatalogNode {
     Node: Option<Node>,
     Services: HashMap<String, AgentService>,
 }
 
-#[derive(Eq, Default, PartialEq, Serialize, Deserialize, Debug)]
+#[derive(Default, Serialize, Deserialize, Debug)]
 #[serde(default)]
 pub struct CatalogRegistration {
     ID: String,
@@ -69,7 +69,7 @@ pub struct CatalogRegistration {
     SkipNodeUpdate: bool,
 }
 
-#[derive(Eq, Default, PartialEq, Serialize, Deserialize, Debug)]
+#[derive(Default, Serialize, Deserialize, Debug)]
 #[serde(default)]
 pub struct CatalogDeregistration {
     Node: String,

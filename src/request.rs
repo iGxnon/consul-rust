@@ -1,3 +1,4 @@
+use std::any::{Any, TypeId};
 use std::collections::HashMap;
 use url::Url;
 
@@ -115,7 +116,7 @@ pub async fn get<R: DeserializeOwned>(
     ))
 }
 
-pub async fn delete<R: DeserializeOwned>(
+pub async fn delete<R: DeserializeOwned + 'static>(
     path: &str,
     config: &Config,
     params: HashMap<String, String>,
@@ -125,7 +126,7 @@ pub async fn delete<R: DeserializeOwned>(
     write_with_body(path, None as Option<&()>, config, params, options, req).await
 }
 
-pub async fn put<T: Serialize, R: DeserializeOwned>(
+pub async fn put<T: Serialize, R: DeserializeOwned + 'static>(
     path: &str,
     body: Option<&T>,
     config: &Config,
@@ -136,7 +137,7 @@ pub async fn put<T: Serialize, R: DeserializeOwned>(
     write_with_body(path, body, config, params, options, req).await
 }
 
-async fn write_with_body<T: Serialize, R: DeserializeOwned, F>(
+async fn write_with_body<T: Serialize, R: DeserializeOwned + 'static, F>(
     path: &str,
     body: Option<&T>,
     config: &Config,
@@ -163,9 +164,17 @@ where
         builder
     };
     let builder = add_config_options(builder, config);
-    let x = builder.send().await?.error_for_status()?.json().await?;
+    let response = builder.send().await?.error_for_status()?;
+    if TypeId::of::<R>() == ().type_id() || matches!(response.content_length(), Some(0)) {
+        return Ok((
+            serde_json::from_str("null").unwrap(),
+            WriteMeta {
+                request_time: Instant::now() - start,
+            },
+        ));
+    }
     Ok((
-        x,
+        response.json().await?,
         WriteMeta {
             request_time: Instant::now() - start,
         },
